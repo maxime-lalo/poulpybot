@@ -142,15 +142,13 @@ client.on('messageReactionAdd', (reaction, user) => {
 	if (message.author.id == client.user.id) {
 		// Si le bot ne réagit pas à son propre message
 		if (user.id != client.user.id) {
-			console.log("Demande de rôle");
 			for(var i = 0; i < roleList.length; i++){
 				if (roleList[i].id == emoji.id) {
-					console.log("Rôle demandé : " + roleList[i].name);
 					let role = message.guild.roles.cache.find(r => r.id === roleList[i].role);
 					let member = message.guild.members.cache.find(u => u.id === user.id);
 
 					member.roles.add(role);
-					console.log("Rôle " + roleList[i].name + "ajouté à " + member.username);
+					console.log("Rôle " + roleList[i].name + " ajouté à " + user.username);
 				}
 			}
 		}
@@ -164,15 +162,13 @@ client.on('messageReactionRemove', (reaction, user) => {
 	if (message.author.id == client.user.id) {
 		// Si le bot ne réagit pas à son propre message
 		if (user.id != client.user.id) {
-			console.log("Demande de rôle");
 			for(var i = 0; i < roleList.length; i++){
 				if (roleList[i].id == emoji.id) {
-					console.log("Rôle supprimé : " + roleList[i].name);
 					let role = message.guild.roles.cache.find(r => r.id === roleList[i].role);
 					let member = message.guild.members.cache.find(u => u.id === user.id);
 
 					member.roles.remove(role);
-					console.log("Rôle " + roleList[i].name + "retiré à " + member.username);
+					console.log("Rôle " + roleList[i].name + " retiré à " + user.username);
 				}
 			}
 		}
