@@ -99,14 +99,7 @@ client.on("ready",() =>{
 	client.guilds.cache.forEach(server =>{
 		// On cherche dans tous les channels le channel tests-max
 		server.channels.cache.forEach(channel =>{
-			if (channel.name === "tests-max") {
-				// On récupère tous les messages de ce channel et on les supprime
-				channel.messages.fetch().then(messages =>{
-					messages.forEach(message =>{
-						message.delete();
-					})
-				})
-
+			if (channel.id === "771714152292286505") {
 				// Une fois supprimés on envoie le message de choix des rôles
 				const msg = channel.send("Choisissez votre rôle");
 				msg.then(message =>{
@@ -150,11 +143,36 @@ client.on('messageReactionAdd', (reaction, user) => {
 		// Si le bot ne réagit pas à son propre message
 		if (user.id != client.user.id) {
 			console.log("Demande de rôle");
-
 			for(var i = 0; i < roleList.length; i++){
 				if (roleList[i].id == emoji.id) {
+					console.log("Rôle demandé : " + roleList[i].name);
 					let role = message.guild.roles.cache.find(r => r.id === roleList[i].role);
 					let member = message.guild.members.cache.find(u => u.id === user.id);
+
+					member.roles.add(role);
+					console.log("Rôle " + roleList[i].name + "ajouté à " + member.username);
+				}
+			}
+		}
+	}
+});
+
+client.on('messageReactionRemove', (reaction, user) => {
+	const message = reaction.message;
+	const emoji = reaction.emoji;
+	// si c'est bien une react sur le message du bot
+	if (message.author.id == client.user.id) {
+		// Si le bot ne réagit pas à son propre message
+		if (user.id != client.user.id) {
+			console.log("Demande de rôle");
+			for(var i = 0; i < roleList.length; i++){
+				if (roleList[i].id == emoji.id) {
+					console.log("Rôle supprimé : " + roleList[i].name);
+					let role = message.guild.roles.cache.find(r => r.id === roleList[i].role);
+					let member = message.guild.members.cache.find(u => u.id === user.id);
+
+					member.roles.remove(role);
+					console.log("Rôle " + roleList[i].name + "retiré à " + member.username);
 				}
 			}
 		}
