@@ -1,4 +1,5 @@
 const ytdl = require("ytdl-core");
+const hour = require("../ressources/hour.js");
 
 module.exports = {
 	name: 'play',
@@ -11,12 +12,12 @@ module.exports = {
 		  const voiceChannel = message.member.voice.channel;
 		  if (!voiceChannel)
 		    return message.channel.send(
-		      "[**POULPYZIK**] Connecte toi à un salon pour que je puisse te rejoindre :)"
+		      "[**POULPYZIK**][**" + hour.get(false) + "**] Connecte toi à un salon pour que je puisse te rejoindre :)"
 		    );
 		  const permissions = voiceChannel.permissionsFor(message.client.user);
 		  if (!permissions.has("CONNECT") || !permissions.has("SPEAK")) {
 		    return message.channel.send(
-		      "[**POULPYZIK**] Je n'ai pas les permissions pour te rejoindre :("
+		      "[**POULPYZIK**][**" + hour.get(false) + "**] Je n'ai pas les permissions pour te rejoindre :("
 		    );
 		  }
 
@@ -53,7 +54,7 @@ module.exports = {
 		    serverQueue.songs.push(song);
 		    console.log(`${song.title} has been added to the queue!`);
 		    message.channel.send(
-		      `[**POULPYZIK**] **${song.title}** a été ajouté à la file d'attente`
+		      `[**POULPYZIK**][**${hour.get(false)}**] **${song.title}** a été ajouté à la file d'attente`
 		    );
 		  }
 		} catch (error) {
@@ -80,6 +81,6 @@ module.exports = {
 	      })
 	      .on("error", error => console.error(error));
 	    dispatcher.setVolume(serverQueue.volume / 1000);
-	    serverQueue.textChannel.send(`[**POULPYZIK**] Son joué actuellement : **${song.title}**`);
+	    serverQueue.textChannel.send(`[**POULPYZIK**][**${hour.get(false)}**] Son joué actuellement : **${song.title}**`);
   	}
 }
