@@ -10,6 +10,7 @@ const roleList = require("./ressources/rolesList.json");
 /* Objets */
 const client = new Discord.Client();
 
+client.queue = new Map();
 
 /* Récupération de toutes les commandes disponibles */
 client.commands = new Discord.Collection();
@@ -19,7 +20,7 @@ for(const file of commandFiles){
 	const command = require(`./commands/${file}`);
 	client.commands.set(command.name, command);
 }
-/* */
+/* Fin récupération des commandes */
 
 client.on("ready",() =>{
 	client.user.setActivity("Among Us",{type: "PLAYING"});
