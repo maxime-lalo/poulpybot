@@ -2,7 +2,7 @@ const Discord = require("discord.js");
 const config = require("./config.json");
 
 const client = new Discord.Client();
-const prefix = "*";
+const prefix = "$";
 const roleList = [
 	{
 		"id" : "634735250727239691",
@@ -93,13 +93,13 @@ const ossPhrases = [
 ];
 
 client.on("ready",() =>{
-	client.user.setActivity("le cul de ta mère",{type: "WATCHING"});
+	client.user.setActivity("Among Us",{type: "PLAYING"});
 
 	// Pour chaque serveur
 	client.guilds.cache.forEach(server =>{
 		// On cherche dans tous les channels le channel tests-max
 		server.channels.cache.forEach(channel =>{
-			if (channel.id === "771714152292286505") {
+			if (channel.id === "772076819267452928") {
 				// On cherche si le message est déjà présent
 				let isMessageThere = false;
 				channel.messages.fetch().then(messages => {
