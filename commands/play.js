@@ -11,12 +11,12 @@ module.exports = {
 		  const voiceChannel = message.member.voice.channel;
 		  if (!voiceChannel)
 		    return message.channel.send(
-		      "Connecte toi à un salon pour que je puisse te rejoindre :)"
+		      "[**POULPYZIK**] : Connecte toi à un salon pour que je puisse te rejoindre :)"
 		    );
 		  const permissions = voiceChannel.permissionsFor(message.client.user);
 		  if (!permissions.has("CONNECT") || !permissions.has("SPEAK")) {
 		    return message.channel.send(
-		      "Je n'ai pas les permissions pour te rejoindre :("
+		      "[**POULPYZIK**] : Je n'ai pas les permissions pour te rejoindre :("
 		    );
 		  }
 
@@ -32,7 +32,7 @@ module.exports = {
 		      voiceChannel: voiceChannel,
 		      connection: null,
 		      songs: [],
-		      volume: 5,
+		      volume: 1,
 		      playing: true
 		    };
 
@@ -46,20 +46,20 @@ module.exports = {
 		      this.play(message, queueContruct.songs[0]);
 		    } catch (err) {
 		      console.log(err);
+		      message.channel.send("Erreur lors de la lecture de l'URL");
 		      queue.delete(message.guild.id);
-		      return message.channel.send(err);
 		    }
 		  } else {
 		    serverQueue.songs.push(song);
 		    console.log(`${song.title} has been added to the queue!`);
-		    return message.channel.send(
-		      `${song.title} a été ajouté à la file d'attente`
+		    message.channel.send(
+		      `[**POULPYZIK**] : **${song.title}** a été ajouté à la file d'attente`
 		    );
 		  }
 		} catch (error) {
 		  console.log(error);
-		  message.channel.send(error.message);
 		}
+		message.delete({timeout: 1000});
 	},
 	play(message, song) {
 	    const queue = message.client.queue;
@@ -79,7 +79,7 @@ module.exports = {
 	        this.play(message, serverQueue.songs[0]);
 	      })
 	      .on("error", error => console.error(error));
-	    dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-	    serverQueue.textChannel.send(`Son joué actuellement : **${song.title}**`);
+	    dispatcher.setVolumeLogarithmic(serverQueue.volume / 100);
+	    serverQueue.textChannel.send(`[**POULPYZIK**] : Son joué actuellement : **${song.title}**`);
   	}
 }
