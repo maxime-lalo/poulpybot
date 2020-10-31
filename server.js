@@ -1,6 +1,5 @@
 /* Librairies */
 const Discord = require("discord.js");
-const YoutubeStream = require("youtube-audio-stream");
 const fs = require('fs');
 
 /* Ressources */
