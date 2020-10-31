@@ -11,12 +11,12 @@ module.exports = {
 		  const voiceChannel = message.member.voice.channel;
 		  if (!voiceChannel)
 		    return message.channel.send(
-		      "[**POULPYZIK**] : Connecte toi à un salon pour que je puisse te rejoindre :)"
+		      "[**POULPYZIK**] Connecte toi à un salon pour que je puisse te rejoindre :)"
 		    );
 		  const permissions = voiceChannel.permissionsFor(message.client.user);
 		  if (!permissions.has("CONNECT") || !permissions.has("SPEAK")) {
 		    return message.channel.send(
-		      "[**POULPYZIK**] : Je n'ai pas les permissions pour te rejoindre :("
+		      "[**POULPYZIK**] Je n'ai pas les permissions pour te rejoindre :("
 		    );
 		  }
 
@@ -32,7 +32,7 @@ module.exports = {
 		      voiceChannel: voiceChannel,
 		      connection: null,
 		      songs: [],
-		      volume: 1,
+		      volume: 10,
 		      playing: true
 		    };
 
@@ -53,7 +53,7 @@ module.exports = {
 		    serverQueue.songs.push(song);
 		    console.log(`${song.title} has been added to the queue!`);
 		    message.channel.send(
-		      `[**POULPYZIK**] : **${song.title}** a été ajouté à la file d'attente`
+		      `[**POULPYZIK**] **${song.title}** a été ajouté à la file d'attente`
 		    );
 		  }
 		} catch (error) {
@@ -79,7 +79,7 @@ module.exports = {
 	        this.play(message, serverQueue.songs[0]);
 	      })
 	      .on("error", error => console.error(error));
-	    dispatcher.setVolumeLogarithmic(serverQueue.volume / 100);
-	    serverQueue.textChannel.send(`[**POULPYZIK**] : Son joué actuellement : **${song.title}**`);
+	    dispatcher.setVolume(serverQueue.volume / 1000);
+	    serverQueue.textChannel.send(`[**POULPYZIK**] Son joué actuellement : **${song.title}**`);
   	}
 }

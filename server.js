@@ -1,6 +1,5 @@
 /* Librairies */
 const Discord = require("discord.js");
-const YoutubeStream = require("youtube-audio-stream");
 const fs = require('fs');
 
 /* Ressources */
@@ -29,7 +28,7 @@ client.on("ready",() =>{
 	client.guilds.cache.forEach(server =>{
 		// On cherche dans tous les channels le channel tests-max
 		server.channels.cache.forEach(channel =>{
-			if (channel.id === "772076819267452928") {
+			if (channel.id === config.roleChannel) {
 				// On cherche si le message est déjà présent
 				let isMessageThere = false;
 				channel.messages.fetch().then(messages => {
