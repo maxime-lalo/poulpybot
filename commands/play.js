@@ -34,7 +34,7 @@ module.exports = {
 				    voiceChannel: voiceChannel,
 				    connection: null,
 				    songs: [],
-				    volume: 10,
+				    volume: 80,
 				    playing: true
 				  };
 
