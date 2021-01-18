@@ -4,11 +4,14 @@ const fs = require('fs');
 const request = require('request');
 const readline = require('readline');
 const { google } = require('googleapis');
-
+const  async = require('async');
 /* Variables du drive google */
-const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
+const SCOPES = ['https://www.googleapis.com/auth/drive'];
 const TOKEN_PATH = 'token.json';
-
+var year_upload = "2020";
+// Default folder
+var shared_folder = "1NHxCQO6kW27lLd6Wtc_qcPdv5wpHwOdN";
+var year_folder = "1NHxCQO6kW27lLd6Wtc_qcPdv5wpHwOdN";
 function authorize(credentials, callback) {
 	const { client_secret, client_id, redirect_uris } = credentials.installed;
 	const oAuth2Client = new google.auth.OAuth2(
@@ -54,7 +57,7 @@ function uploadFiles(auth) {
 		for(var i = 0; i < files.length; i++){
 			var fileMetadata = {
 				'name': files[i],
-				parents: ["1NHxCQO6kW27lLd6Wtc_qcPdv5wpHwOdN"]
+				parents: [year_folder]
 			};
 
 			var media = {
@@ -96,6 +99,66 @@ function uploadFiles(auth) {
 
 }
 
+function changeYear(auth){
+	const drive = google.drive({ version: 'v3', auth });
+	var pageToken = null;
+	// Using the NPM module 'async'
+	async.doWhilst(function (callback) {
+		drive.files.list({
+			q: "mimeType='application/vnd.google-apps.folder'",
+			fields: 'nextPageToken, files(id, name, mimeType, parents)',
+			spaces: 'drive',
+			pageToken: pageToken
+		}, function (err, res) {
+			if (err) {
+				// Handle error
+				console.error(err);
+				callback(err)
+			} else {
+				var found = 0;
+				res.data.files.forEach((file) => {
+					if(file.name == year_upload){
+						year_folder = file.id;
+						found = 1;
+					}
+				});
+				if(!found){
+					var fileMetadata = {
+						'name': year_upload,
+						'mimeType': 'application/vnd.google-apps.folder',
+						parents: [shared_folder]
+					};
+					drive.files.create({
+						resource: fileMetadata,
+						fields: 'id'
+					}, function (err, file) {
+						if (err) {
+							// Handle error
+							console.error(err);
+						} else {
+							console.log('Dossier crée, son id est : ', file.data.id);
+							year_folder = file.data.id;
+						}
+					});
+				}else{
+					console.log("Le dossier a bien été update son id est : " + year_folder);
+				}
+				pageToken = res.nextPageToken;
+				callback();
+			}
+		});
+	}, function () {
+		return !!pageToken;
+	}, function (err) {
+		if (err) {
+			// Handle error
+			console.error(err);
+		} else {
+			// All pages fetched
+		}
+	})
+
+}
 /* Ressources */
 const ossPhrases = require("./ressources/ossPhrases.json");
 const config = require("./config.json");
@@ -152,33 +215,78 @@ client.on("message",function(message){
 	// Pour ne pas rentrer en conflit avec les autres bots
 	if (message.content.startsWith("!")) return;
 
+
 	// Si le message reçu est dans le channel des photos
 	if(message.channel.id === config.photoChannel){
-		// Si le message contient bien une photo ou un fichier
-		if(message.attachments.size >= 1){
-			// On va télécharger la photo
-			var photo = message.attachments.first();
-			request.head(photo.url, function (err, res, body) {
-				// On stocke la photo sur le file system
-				request(photo.url).pipe(fs.createWriteStream("images/" + photo.name)).on('close',() => {
-					// On envoie la photo sur le drive
+		if(message.content.startsWith(config.prefix + "year")){
+			// Si la commande envoyée est year
+			const commandBody = message.content.slice(config.prefix.length);
+			const args = commandBody.split(' ');
 
-					fs.readFile('credentials.json', (err, content) => {
-						if (err) return console.log('Error loading client secret file:', err);
-						// Authorize a client with credentials, then call the Google Drive API.
-						authorize(JSON.parse(content), uploadFiles);
+			// Si il n'y a pas d'argument on renvoie l'année en cours
+			if(args[1] == undefined){
+				message.reply("l'année configurée est " + year_upload).catch(console.error);
+			}else{
+				// Si il y a un argument on vérifie que c'est un nombre
+				if (!isNaN(args[1])) {
+					const nbr = args[1];
+					// Si on fournit un nombre trop petit ou trop grand
+					if (nbr <= 1998 && nbr >= 2100) {
+						message.reply("veuillez saisir une année valide").then(msg => {
+							msg.delete({ timeout: 2000 });
+							message.delete({ timeout: 2000 });
+						}).catch(console.error);
+					} else {
+						// Sinon on change l'année dans la config
+						year_upload = nbr;
+						message.reply("l'année a bien été configurée sur " + nbr).catch(console.error);
 
-						// On envoie un message de confirmation
-						message.react("✅");
+						// On change ensuite sur quel dossier on va travailler
+						fs.readFile('credentials.json', (err, content) => {
+							if (err) return console.log('Error loading client secret file:', err);
+							// Authorize a client with credentials, then call the Google Drive API.
+							authorize(JSON.parse(content), changeYear);
+
+							// On envoie un message de confirmation
+							message.react("✅");
+						});
+					}
+
+				} else {
+					// Si l'année fournie n'est pas un nombre
+					message.reply("Veuillez saisir une année valide").then(msg => {
+						msg.delete({ timeout: 2000 });
+						message.delete({ timeout: 2000 });
+					}).catch(console.error);
+				}
+			}
+		}else{
+			//Si le message contient bien une photo ou un fichier
+			if (message.attachments.size >= 1) {
+				// On va télécharger la photo
+				var photo = message.attachments.first();
+				request.head(photo.url, function (err, res, body) {
+					// On stocke la photo sur le file system
+					request(photo.url).pipe(fs.createWriteStream("images/" + photo.name)).on('close', () => {
+						// On envoie la photo sur le drive
+
+						fs.readFile('credentials.json', (err, content) => {
+							if (err) return console.log('Error loading client secret file:', err);
+							// Authorize a client with credentials, then call the Google Drive API.
+							authorize(JSON.parse(content), uploadFiles);
+
+							// On envoie un message de confirmation
+							message.react("✅");
+						});
 					});
 				});
-			});
-			
-		}else{
-			message.reply("merci d'upload une photo gros connard de merde").then(msg => {
-				msg.delete({ timeout: 2000 });
-				message.delete({ timeout: 2000 });
-			}).catch(console.error);
+
+			} else {
+				message.reply("merci d'upload une photo gros connard de merde").then(msg => {
+					msg.delete({ timeout: 2000 });
+					message.delete({ timeout: 2000 });
+				}).catch(console.error);
+			}
 		}
 	}else{
 		if (!message.content.startsWith(config.prefix)) return;
